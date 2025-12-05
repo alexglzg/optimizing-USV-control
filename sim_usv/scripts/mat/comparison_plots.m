@@ -1,0 +1,186 @@
+%Declare name of the bag
+experimentbag1 = rosbag('iteration1a/trialnu_sines.bag')
+experimentbag2 = rosbag('iteration5a/trialnu_sines.bag')
+
+%% Bag 1
+%Velocity control input u
+ctrl_input_speed = select(experimentbag1, "Topic", '/u_speed'); %Variable reading from rosbag
+ctrl_input_speed_ts = timeseries(ctrl_input_speed, 'Data'); %Time series creation
+ctrl_input_speed_data = ctrl_input_speed_ts.get.Data; %Data gathering
+
+%Output velocity y
+velocity = select(experimentbag1, "Topic", '/y_speed');
+velocity_ts = timeseries(velocity, 'Data');
+velocity_data = velocity_ts.get.Data;
+
+%Reference velocity r
+reference_speed = select(experimentbag1, "Topic", '/r_speed');
+reference_speed_ts = timeseries(reference_speed, 'Data');
+reference_speed_data = reference_speed_ts.get.Data;
+
+%Velocity racking error e
+error_speed = select(experimentbag1, "Topic", '/e_speed');
+error_speed_ts = timeseries(error_speed, 'Data');
+error_speed_data = error_speed_ts.get.Data;
+
+%Heading control input u
+ctrl_input_heading = select(experimentbag1, "Topic", '/u_heading')
+ctrl_input_heading_ts = timeseries(ctrl_input_heading, 'Data');
+ctrl_input_heading_data = ctrl_input_heading_ts.get.Data;
+
+%Output heading y
+heading = select(experimentbag1, "Topic", '/y_heading');
+heading_ts = timeseries(heading, 'Data');
+heading_data = heading_ts.get.Data;
+
+%Reference heading r
+reference_heading = select(experimentbag1, "Topic", '/r_heading');
+reference_heading_ts = timeseries(reference_heading, 'Data');
+reference_heading_data = reference_heading_ts.get.Data;
+
+%Heading racking error e
+error_heading = select(experimentbag1, "Topic", '/e_heading');
+error_heading_ts = timeseries(error_heading, 'Data');
+error_heading_data = error_heading_ts.get.Data;
+
+
+%% Bag 2
+%Velocity control input u
+ctrl_input_speed2 = select(experimentbag2, "Topic", '/u_speed'); %Variable reading from rosbag
+ctrl_input_speed_ts2 = timeseries(ctrl_input_speed2, 'Data'); %Time series creation
+ctrl_input_speed_data2 = ctrl_input_speed_ts2.get.Data; %Data gathering
+
+%Output velocity y
+velocity2 = select(experimentbag2, "Topic", '/y_speed');
+velocity_ts2 = timeseries(velocity2, 'Data');
+velocity_data2 = velocity_ts2.get.Data;
+
+%Velocity racking error e
+error_speed2 = select(experimentbag2, "Topic", '/e_speed');
+error_speed_ts2 = timeseries(error_speed2, 'Data');
+error_speed_data2 = error_speed_ts2.get.Data;
+
+%Heading control input u
+ctrl_input_heading2 = select(experimentbag2, "Topic", '/u_heading')
+ctrl_input_heading_ts2 = timeseries(ctrl_input_heading2, 'Data');
+ctrl_input_heading_data2 = ctrl_input_heading_ts2.get.Data;
+
+%Output heading y
+heading2 = select(experimentbag2, "Topic", '/y_heading');
+heading_ts2 = timeseries(heading2, 'Data');
+heading_data2 = heading_ts2.get.Data;
+
+%Heading racking error e
+error_heading2 = select(experimentbag2, "Topic", '/e_heading');
+error_heading_ts2 = timeseries(error_heading2, 'Data');
+error_heading_data2 = error_heading_ts2.get.Data;
+
+
+%% Visualize
+%Velocity reference vs response
+figure
+start_time = reference_speed_ts.get.TimeInfo.Start;
+t = reference_speed_ts.get.Time - start_time;
+plot(t,reference_speed_data)
+hold on
+plot(t,velocity_data)
+hold on
+plot(t,velocity_data2)
+%Velocity control input
+figure
+plot(t,ctrl_input_speed_data)
+hold on
+plot(t,ctrl_input_speed_data2)
+%Velocity racking error
+figure
+plot(t,error_speed_data)
+hold on
+plot(t,error_speed_data2)
+%Heading reference vs response
+figure
+plot(t,reference_heading_data)
+hold on
+plot(t,heading_data)
+hold on
+plot(t,heading_data2)
+%Heading control input
+figure
+plot(t,ctrl_input_heading_data)
+hold on
+plot(t,ctrl_input_heading_data2)
+%Heading racking error
+figure
+plot(t,error_heading_data)
+hold on
+plot(t,error_heading_data2)
+
+%% XY
+datasize = length(t);
+ref_x = zeros(datasize);
+ref_y = zeros(datasize);
+ref_psi = zeros(datasize);
+x_dot_last = 0.0;
+y_dot_last = 0.0;
+psi_dot_last = 0.0;
+prev_x = 0.0;
+prev_y = 0.0;
+prev_psi = 0.0;
+
+for i=1:datasize
+    if i <= datasize - 1;
+        step = t(i+1) - t(i);
+    end
+    x_dot = reference_speed_data(i)*cos(prev_psi);
+    y_dot = reference_speed_data(i)*sin(prev_psi);
+    psi_dot = reference_heading_data(i);
+    ref_x(i) = (step)*(x_dot + x_dot_last)/2 + prev_x;
+    ref_y(i) = (step)*(y_dot + y_dot_last)/2 + prev_y;
+    ref_psi(i) = (step)*(psi_dot + psi_dot_last)/2 + prev_psi;
+    x_dot_last = x_dot;
+    y_dot_last = y_dot;
+    psi_dot_last = psi_dot;
+    prev_x = ref_x(i);
+    prev_y = ref_y(i);
+    prev_psi = ref_psi(i);
+end
+xytheta = select(experimentbag1, "Topic", 'position');
+NEDxy = readMessages(xytheta,'DataFormat','struct');
+NEDxPoints = cellfun(@(m) double(m.X),NEDxy);
+NEDyPoints = cellfun(@(m) double(m.Y),NEDxy);
+
+xytheta2 = select(experimentbag2, "Topic", 'position');
+NEDxy2 = readMessages(xytheta2,'DataFormat','struct');
+NEDxPoints2 = cellfun(@(m) double(m.X),NEDxy2);
+NEDyPoints2 = cellfun(@(m) double(m.Y),NEDxy2);
+figure
+plot(ref_y, ref_x, 'k')
+hold on
+plot(NEDyPoints,NEDxPoints, 'b')
+hold on
+plot(NEDyPoints2,NEDxPoints2, 'r')
+grid on
+legend('Designed Trajectory','Initial Trajectory','Final Trajectory')
+xlabel('Y(m)')
+ylabel('X(m)')
+
+%% METRICS
+disp('Surge')
+% Mean absolute error
+initial_MAE = mae(error_speed_data)
+final_MAE = mae(error_speed_data2)
+% Integral absolute error
+initial_IAE = trapz(0.02,abs(error_speed_data))
+final_IAE = trapz(0.02,abs(error_speed_data2))
+% RMS
+initial_rms = sqrt(mse(error_speed_data))
+final_rms = sqrt(mse(error_speed_data2))
+disp('Rotation')
+% Mean absolute error
+initial_MAE = mae(error_heading_data)
+final_MAE = mae(error_heading_data2)
+% Integral absolute error
+initial_IAE = trapz(0.01,abs(error_heading_data))
+final_IAE = trapz(0.01,abs(error_heading_data2))
+% RMS
+initial_rms = sqrt(mse(error_heading_data))
+final_rms = sqrt(mse(error_heading_data2))

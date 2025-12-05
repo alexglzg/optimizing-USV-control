@@ -1,0 +1,9 @@
+<launch>
+
+    <include file="$(find sim_usv)/launch/usv_simulation.launch" />
+
+    <node pkg="usvnuflcontroller" type="usvnuflcontroller_node" name="usvnuflcontroller_node" />
+
+    <node pkg="sim_usv" type="trialnu_sines.py" name="trialnu_sines" />
+
+</launch>
