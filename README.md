@@ -4,7 +4,7 @@ Codebase for "Optimizing unmanned surface vehicle control: A data-enabled learni
 ## sim_usv
 
 ROS pkg with USV simulation environment, including:
-- dynamic model of the USV
+- Dynamic model of the USV
 - URDF of the USV
 - RViz configuration to visualize the simulation
 - Scripts to run the experiments
@@ -26,7 +26,6 @@ roslaunch sim_usv sim_trialnu_1.launch
 
 roslaunch sim_usv sim_trialnu_2.launch
 - Runs the special experiment: use the data from experiment 1 to build the surge speed and yaw rate references.
-- Special case trialnu_2x5.py amplifies the reference velocities to avoid oscillating around 0 m/s or 0 rad/s.
 
 roslaunch sim_suv sim_trialnu_sines.launch
 - Runs the validation scenario: following a different velocity profile built with sine waves.
@@ -38,4 +37,4 @@ roslaunch sim_usv usv_simulation.launch
 Rosbags from our implementation are available in the repository. These rosbags were used directly for the data-driven gain optimization.
 
 # TODO:
-At this moment, the data-enabled learning algorithm implementation cannot be publicly released due to ongoing related research. Once the project/IP constraints are resolved, we will be able to add it to the public codebase.
+Currently, the implementation of the data-enabled learning algorithm cannot be publicly released due to ongoing related research. Once the project/IP constraints are resolved, we will be able to add it to the public codebase.
