@@ -6,6 +6,9 @@ Codebase for the paper *"Optimizing unmanned surface vehicle control: A data-ena
 
 This repository contains ROS packages for simulating and controlling an unmanned surface vehicle (USV), including a dynamic model, visualization tools, and experimental scripts.
 
+[![USV Experiment](http://img.youtube.com/vi/GjhJKboKg5Y/0.jpg)]([https://youtu.be/your_video_id](https://youtu.be/GjhJKboKg5Y))
+
+
 ## Requirements
 
 **Tested Environments:**
