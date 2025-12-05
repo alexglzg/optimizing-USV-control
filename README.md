@@ -1,40 +1,66 @@
-# optimizing-USV-control
-Codebase for "Optimizing unmanned surface vehicle control: A data-enabled learning approach."
+# Optimizing USV Control
 
-## sim_usv
+Codebase for the paper *"Optimizing unmanned surface vehicle control: A data-enabled learning approach."*
 
-ROS pkg with USV simulation environment, including:
+## Overview
+
+This repository contains ROS packages for simulating and controlling an unmanned surface vehicle (USV), including a dynamic model, visualization tools, and experimental scripts.
+
+## Requirements
+
+**Tested Environments:**
+- Ubuntu 16.04 with ROS Kinetic
+- Ubuntu 20.04 with ROS Noetic
+
+**Dependencies:**
+- ROS 1
+- Eigen
+- scipy.io (Python)
+
+## Packages
+
+### sim_usv
+
+ROS package with the USV simulation environment:
 - Dynamic model of the USV
-- URDF of the USV
-- RViz configuration to visualize the simulation
-- Scripts to run the experiments
+- URDF description
+- RViz configuration for visualization
+- Launch files for running experiments
 
-## usvnuflcontroller
+### usvnuflcontroller
 
-ROS pkg from MATLAB code generation with surge speed and yaw rate controller node.
+ROS package generated from MATLAB containing surge speed and yaw rate controllers.
 
-To modify PID gains, access UsvNuFLController_data.cpp and change the values of:
-- Surge speed PID: Pu, Iu, Du
-- Yaw rate PID: Pr, Ir, Dr
+**Tuning PID Gains:**  
+Edit `UsvNuFLController_data.cpp` and modify:
+- Surge speed: `Pu`, `Iu`, `Du`
+- Yaw rate: `Pr`, `Ir`, `Dr`
 
-The code was generated using UsvNuFLController.slx
+The controller was generated from `UsvNuFLController.slx`.
 
-## Testing the system
-
+## Usage
+```bash
+# Experiment 1: Follow predefined velocity profile (profile.mat)
 roslaunch sim_usv sim_trialnu_1.launch
-- Runs experiment 1: follow a predefined velocity profile (profile.mat).
 
+# Experiment 2: Use data from Experiment 1 to build velocity references
 roslaunch sim_usv sim_trialnu_2.launch
-- Runs the special experiment: use the data from experiment 1 to build the surge speed and yaw rate references.
 
-roslaunch sim_suv sim_trialnu_sines.launch
-- Runs the validation scenario: following a different velocity profile built with sine waves.
+# Validation: Follow sine-wave velocity profile
+roslaunch sim_usv sim_trialnu_sines.launch
 
+# Standalone simulation for general controller testing
 roslaunch sim_usv usv_simulation.launch
-- Standalone USV simulation, which can be used for general controller tests.
+```
 
-## Available data
-Rosbags from our implementation are available in the repository. These rosbags were used directly for the data-driven gain optimization.
+## Data
 
-# TODO:
-Currently, the implementation of the data-enabled learning algorithm cannot be publicly released due to ongoing related research. Once the project/IP constraints are resolved, we will be able to add it to the public codebase.
+Rosbags from our implementation are included in the repository. These were used directly for data-driven gain optimization.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## Note
+
+The data-enabled learning algorithm implementation is not yet publicly available due to ongoing research. It will be released once project/IP constraints are resolved.
